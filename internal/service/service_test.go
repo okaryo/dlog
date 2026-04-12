@@ -65,3 +65,40 @@ func TestAddTodayLogFailsOnCorruptJSONWithoutChangingFile(t *testing.T) {
 		t.Fatalf("corrupt file was modified")
 	}
 }
+
+func TestGetLogByDateReturnsSpecifiedDayLog(t *testing.T) {
+	now := time.Date(2026, 4, 11, 18, 45, 0, 0, time.FixedZone("JST", 9*60*60))
+	store := storage.NewStore(t.TempDir())
+	svc := NewWithNow(store, func() time.Time { return now })
+
+	if err := svc.AddTodayLog("previous day task"); err != nil {
+		t.Fatalf("add log: %v", err)
+	}
+
+	dayLog, err := svc.GetLogByDate("2026-04-11")
+	if err != nil {
+		t.Fatalf("get log by date: %v", err)
+	}
+
+	if dayLog.Date != "2026-04-11" {
+		t.Fatalf("unexpected date: %s", dayLog.Date)
+	}
+	if len(dayLog.Logs) != 1 || dayLog.Logs[0].Text != "previous day task" {
+		t.Fatalf("unexpected logs: %+v", dayLog.Logs)
+	}
+}
+
+func TestGetLogByDateRejectsInvalidFormat(t *testing.T) {
+	now := time.Date(2026, 4, 12, 10, 3, 21, 0, time.FixedZone("JST", 9*60*60))
+	store := storage.NewStore(t.TempDir())
+	svc := NewWithNow(store, func() time.Time { return now })
+
+	_, err := svc.GetLogByDate("2026/04/12")
+	if err == nil {
+		t.Fatalf("expected error")
+	}
+
+	if !strings.Contains(err.Error(), "date must be in YYYY-MM-DD format") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}

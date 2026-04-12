@@ -56,13 +56,25 @@ func (s *Service) AddTodayLog(text string) error {
 }
 
 func (s *Service) GetTodayLog() (*model.DayLog, error) {
-	now := s.now().In(time.Local)
-	dayLog, err := s.store.LoadDay(now)
+	return s.getLogByTime(s.now().In(time.Local))
+}
+
+func (s *Service) GetLogByDate(date string) (*model.DayLog, error) {
+	parsedDate, err := time.ParseInLocation(dayLayout, date, time.Local)
+	if err != nil {
+		return nil, fmt.Errorf("date must be in YYYY-MM-DD format: %q", date)
+	}
+
+	return s.getLogByTime(parsedDate)
+}
+
+func (s *Service) getLogByTime(target time.Time) (*model.DayLog, error) {
+	dayLog, err := s.store.LoadDay(target)
 	if err != nil {
 		return nil, err
 	}
 
-	expectedDate := now.Format(dayLayout)
+	expectedDate := target.Format(dayLayout)
 	if dayLog.Date != expectedDate {
 		return nil, fmt.Errorf("day log date mismatch: expected %s, got %s", expectedDate, dayLog.Date)
 	}

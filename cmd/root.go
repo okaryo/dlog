@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/okaryo/dlog/internal/model"
 	"github.com/okaryo/dlog/internal/render"
 	"github.com/okaryo/dlog/internal/service"
 	"github.com/spf13/cobra"
@@ -44,12 +45,23 @@ func NewRootCmd(svc *service.Service, out io.Writer, errOut io.Writer) *cobra.Co
 }
 
 func newLogCmd(svc *service.Service, out io.Writer) *cobra.Command {
-	return &cobra.Command{
+	var date string
+
+	cmd := &cobra.Command{
 		Use:   "log",
-		Short: "Show today's logs",
+		Short: "Show logs for today or a specified date",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dayLog, err := svc.GetTodayLog()
+			var (
+				dayLog *model.DayLog
+				err    error
+			)
+
+			if date == "" {
+				dayLog, err = svc.GetTodayLog()
+			} else {
+				dayLog, err = svc.GetLogByDate(date)
+			}
 			if err != nil {
 				return err
 			}
@@ -63,6 +75,10 @@ func newLogCmd(svc *service.Service, out io.Writer) *cobra.Command {
 			return err
 		},
 	}
+
+	cmd.Flags().StringVarP(&date, "date", "d", "", "Show logs for the specified date (YYYY-MM-DD)")
+
+	return cmd
 }
 
 func newMarkdownCmd(svc *service.Service, out io.Writer) *cobra.Command {
