@@ -36,7 +36,7 @@ func (s *Service) AddTodayLog(text string) error {
 		return fmt.Errorf("log text cannot be empty")
 	}
 
-	now := s.now().In(time.Local)
+	now := s.now()
 	dayLog, err := s.store.LoadDay(now)
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func (s *Service) AddTodayLog(text string) error {
 }
 
 func (s *Service) GetTodayLog() (*model.DayLog, error) {
-	return s.getLogByTime(s.now().In(time.Local))
+	return s.getLogByTime(s.now())
 }
 
 func (s *Service) GetLogByDate(date string) (*model.DayLog, error) {

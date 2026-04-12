@@ -26,6 +26,7 @@ dlog md --date 2026-04-12
 - `dlog log --date YYYY-MM-DD` shows logs for the specified date.
 - `dlog md` prints today's logs in Markdown order from oldest to newest.
 - `dlog md --date YYYY-MM-DD` prints logs for the specified date in Markdown order.
+- Displayed times use the timezone recorded in each log entry, not the viewer's current local timezone.
 
 ## Storage
 

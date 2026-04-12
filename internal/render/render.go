@@ -36,7 +36,7 @@ func Text(dayLog *model.DayLog) (string, error) {
 
 	lines := []string{dayLog.Date, ""}
 	for _, entry := range logs {
-		lines = append(lines, fmt.Sprintf("%s %s", entry.timestamp.In(time.Local).Format("15:04"), entry.text))
+		lines = append(lines, fmt.Sprintf("%s %s", entry.timestamp.Format("15:04"), entry.text))
 	}
 
 	return strings.Join(lines, "\n"), nil
@@ -60,7 +60,7 @@ func Markdown(dayLog *model.DayLog) (string, error) {
 
 	lines := []string{"# " + dayLog.Date}
 	for _, entry := range logs {
-		lines = append(lines, fmt.Sprintf("- %s %s", entry.timestamp.In(time.Local).Format("15:04"), entry.text))
+		lines = append(lines, fmt.Sprintf("- %s %s", entry.timestamp.Format("15:04"), entry.text))
 	}
 
 	return strings.Join(lines, "\n"), nil

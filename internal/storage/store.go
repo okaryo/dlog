@@ -40,7 +40,7 @@ func (s *Store) LoadDay(date time.Time) (*model.DayLog, error) {
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return &model.DayLog{
-				Date: date.In(time.Local).Format(dayLayout),
+				Date: date.Format(dayLayout),
 				Logs: []model.LogEntry{},
 			}, nil
 		}
@@ -102,5 +102,5 @@ func (s *Store) SaveDay(dayLog *model.DayLog) error {
 }
 
 func (s *Store) DayPath(date time.Time) string {
-	return filepath.Join(s.baseDir, date.In(time.Local).Format(dayLayout)+".json")
+	return filepath.Join(s.baseDir, date.Format(dayLayout)+".json")
 }
