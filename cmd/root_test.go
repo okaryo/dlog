@@ -131,6 +131,49 @@ func TestMarkdownSubcommandShowsHeadingOnlyForEmptyDay(t *testing.T) {
 	}
 }
 
+func TestMarkdownSubcommandShowsSpecifiedDate(t *testing.T) {
+	current := time.Date(2026, 4, 11, 10, 3, 0, 0, time.FixedZone("JST", 9*60*60))
+	root, stdout, _, _ := newTestRootCmd(t, func() time.Time { return current })
+
+	root.SetArgs([]string{"first task"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("seed first log: %v", err)
+	}
+
+	current = time.Date(2026, 4, 11, 11, 10, 0, 0, time.FixedZone("JST", 9*60*60))
+	root.SetArgs([]string{"second task"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("seed second log: %v", err)
+	}
+
+	current = time.Date(2026, 4, 12, 9, 0, 0, 0, time.FixedZone("JST", 9*60*60))
+	stdout.Reset()
+	root.SetArgs([]string{"md", "--date", "2026-04-11"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute md --date: %v", err)
+	}
+
+	want := "# 2026-04-11\n- 10:03 first task\n- 11:10 second task\n"
+	if stdout.String() != want {
+		t.Fatalf("unexpected output:\nwant:\n%s\ngot:\n%s", want, stdout.String())
+	}
+}
+
+func TestMarkdownSubcommandRejectsInvalidDate(t *testing.T) {
+	now := time.Date(2026, 4, 12, 9, 0, 0, 0, time.FixedZone("JST", 9*60*60))
+	root, _, _, _ := newTestRootCmd(t, func() time.Time { return now })
+
+	root.SetArgs([]string{"md", "-d", "2026/04/12"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatalf("expected error")
+	}
+
+	if !strings.Contains(err.Error(), "date must be in YYYY-MM-DD format") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func TestRootCommandRejectsEmptyText(t *testing.T) {
 	now := time.Date(2026, 4, 12, 10, 3, 21, 0, time.FixedZone("JST", 9*60*60))
 	root, _, _, _ := newTestRootCmd(t, func() time.Time { return now })

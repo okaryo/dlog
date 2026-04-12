@@ -16,6 +16,7 @@ dlog
 dlog log
 dlog log --date 2026-04-12
 dlog md
+dlog md --date 2026-04-12
 ```
 
 ## Behavior
@@ -24,6 +25,7 @@ dlog md
 - `dlog` and `dlog log` show today's logs in reverse chronological order.
 - `dlog log --date YYYY-MM-DD` shows logs for the specified date.
 - `dlog md` prints today's logs in Markdown order from oldest to newest.
+- `dlog md --date YYYY-MM-DD` prints logs for the specified date in Markdown order.
 
 ## Storage
 
@@ -47,8 +49,6 @@ Example:
 
 ## Future ideas
 
-- Date selection for Markdown export
 - Additional export formats
 - Daily and weekly summaries
 - Tags
-- Git integration
