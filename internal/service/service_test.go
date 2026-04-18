@@ -66,6 +66,59 @@ func TestAddTodayLogFailsOnCorruptJSONWithoutChangingFile(t *testing.T) {
 	}
 }
 
+func TestAmendTodayLogReplacesMostRecentEntryText(t *testing.T) {
+	now := time.Date(2026, 4, 12, 10, 3, 21, 0, time.FixedZone("JST", 9*60*60))
+	store := storage.NewStore(t.TempDir())
+	svc := NewWithNow(store, func() time.Time { return now })
+
+	if err := svc.AddTodayLog("first entry"); err != nil {
+		t.Fatalf("add first log: %v", err)
+	}
+
+	now = time.Date(2026, 4, 12, 11, 10, 0, 0, time.FixedZone("JST", 9*60*60))
+	if err := svc.AddTodayLog("second entry"); err != nil {
+		t.Fatalf("add second log: %v", err)
+	}
+
+	if err := svc.AmendTodayLog("  corrected second entry  "); err != nil {
+		t.Fatalf("amend log: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(store.BaseDir(), "2026-04-12.json"))
+	if err != nil {
+		t.Fatalf("read day log file: %v", err)
+	}
+
+	content := string(data)
+	if !strings.Contains(content, `"text": "first entry"`) {
+		t.Fatalf("first log text changed unexpectedly: %s", content)
+	}
+	if !strings.Contains(content, `"timestamp": "2026-04-12T11:10:00+09:00"`) {
+		t.Fatalf("most recent timestamp changed unexpectedly: %s", content)
+	}
+	if !strings.Contains(content, `"text": "corrected second entry"`) {
+		t.Fatalf("most recent text was not amended: %s", content)
+	}
+	if strings.Contains(content, `"text": "second entry"`) {
+		t.Fatalf("old most recent text still present: %s", content)
+	}
+}
+
+func TestAmendTodayLogFailsWhenNoLogsExist(t *testing.T) {
+	now := time.Date(2026, 4, 12, 10, 3, 21, 0, time.FixedZone("JST", 9*60*60))
+	store := storage.NewStore(t.TempDir())
+	svc := NewWithNow(store, func() time.Time { return now })
+
+	err := svc.AmendTodayLog("corrected")
+	if err == nil {
+		t.Fatalf("expected error")
+	}
+
+	if !strings.Contains(err.Error(), "no logs to amend for today") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func TestGetLogByDateReturnsSpecifiedDayLog(t *testing.T) {
 	now := time.Date(2026, 4, 11, 18, 45, 0, 0, time.FixedZone("JST", 9*60*60))
 	store := storage.NewStore(t.TempDir())

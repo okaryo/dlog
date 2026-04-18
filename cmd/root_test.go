@@ -189,6 +189,58 @@ func TestRootCommandRejectsEmptyText(t *testing.T) {
 	}
 }
 
+func TestAmendSubcommandReplacesMostRecentLog(t *testing.T) {
+	current := time.Date(2026, 4, 12, 10, 3, 0, 0, time.FixedZone("JST", 9*60*60))
+	root, _, _, store := newTestRootCmd(t, func() time.Time { return current })
+
+	root.SetArgs([]string{"first task"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("seed first log: %v", err)
+	}
+
+	current = time.Date(2026, 4, 12, 11, 10, 0, 0, time.FixedZone("JST", 9*60*60))
+	root.SetArgs([]string{"second task"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("seed second log: %v", err)
+	}
+
+	root.SetArgs([]string{"amend", "corrected second task"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute amend command: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(store.BaseDir(), "2026-04-12.json"))
+	if err != nil {
+		t.Fatalf("read saved file: %v", err)
+	}
+
+	content := string(data)
+	if !strings.Contains(content, `"text": "first task"`) {
+		t.Fatalf("saved file missing first text: %s", content)
+	}
+	if !strings.Contains(content, `"text": "corrected second task"`) {
+		t.Fatalf("saved file missing amended text: %s", content)
+	}
+	if strings.Contains(content, `"text": "second task"`) {
+		t.Fatalf("saved file still has old text: %s", content)
+	}
+}
+
+func TestAmendSubcommandFailsWithoutExistingLogs(t *testing.T) {
+	now := time.Date(2026, 4, 12, 10, 3, 21, 0, time.FixedZone("JST", 9*60*60))
+	root, _, _, _ := newTestRootCmd(t, func() time.Time { return now })
+
+	root.SetArgs([]string{"amend", "corrected task"})
+	err := root.Execute()
+	if err == nil {
+		t.Fatalf("expected error")
+	}
+
+	if !strings.Contains(err.Error(), "no logs to amend for today") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func newTestRootCmd(t *testing.T, now func() time.Time) (*cobra.Command, *bytes.Buffer, *bytes.Buffer, *storage.Store) {
 	t.Helper()
 

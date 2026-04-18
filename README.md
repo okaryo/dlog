@@ -12,6 +12,7 @@ go install github.com/okaryo/dlog@latest
 
 ```bash
 dlog "task progress update"
+dlog amend "corrected task progress update"
 dlog
 dlog log
 dlog log --date 2026-04-12
@@ -22,11 +23,75 @@ dlog md --date 2026-04-12
 ## Behavior
 
 - `dlog "text"` appends a log entry for today with the current local timestamp.
+- `dlog amend "text"` replaces today's most recent log entry while keeping its original timestamp.
 - `dlog` and `dlog log` show today's logs in reverse chronological order.
 - `dlog log --date YYYY-MM-DD` shows logs for the specified date.
 - `dlog md` prints today's logs in Markdown order from oldest to newest.
 - `dlog md --date YYYY-MM-DD` prints logs for the specified date in Markdown order.
 - Displayed times use the timezone recorded in each log entry, not the viewer's current local timezone.
+
+## Examples
+
+Record logs for today:
+
+```bash
+$ dlog "task progress update"
+$ dlog "api design"
+$ dlog "bug fix"
+```
+
+Amend the most recent log entry:
+
+```bash
+$ dlog amend "bug fix (retry with test case)"
+```
+
+Show today's logs in reverse chronological order with `dlog` or `dlog log`:
+
+```bash
+$ dlog
+2026-04-12
+
+11:10 bug fix (retry with test case)
+10:25 api design
+10:03 task progress update
+```
+
+```bash
+$ dlog log
+2026-04-12
+
+11:10 bug fix (retry with test case)
+10:25 api design
+10:03 task progress update
+```
+
+Show a specific date:
+
+```bash
+$ dlog log --date 2026-04-11
+2026-04-11
+
+18:45 previous day task
+```
+
+Output logs as Markdown in chronological order:
+
+```bash
+$ dlog md
+# 2026-04-12
+- 10:03 task progress update
+- 10:25 api design
+- 11:10 bug fix (retry with test case)
+```
+
+Output a specific date as Markdown:
+
+```bash
+$ dlog md --date 2026-04-11
+# 2026-04-11
+- 18:45 previous day task
+```
 
 ## Storage
 

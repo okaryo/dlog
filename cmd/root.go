@@ -39,7 +39,7 @@ func NewRootCmd(svc *service.Service, out io.Writer, errOut io.Writer) *cobra.Co
 
 	cmd.SetOut(out)
 	cmd.SetErr(errOut)
-	cmd.AddCommand(newLogCmd(svc, out), newMarkdownCmd(svc, out))
+	cmd.AddCommand(newLogCmd(svc, out), newMarkdownCmd(svc, out), newAmendCmd(svc))
 
 	return cmd
 }
@@ -114,6 +114,19 @@ func newMarkdownCmd(svc *service.Service, out io.Writer) *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&date, "date", "d", "", "Output logs for the specified date (YYYY-MM-DD)")
+
+	return cmd
+}
+
+func newAmendCmd(svc *service.Service) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "amend [text]",
+		Short: "Replace today's most recent log entry",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return svc.AmendTodayLog(args[0])
+		},
+	}
 
 	return cmd
 }
