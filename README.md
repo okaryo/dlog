@@ -12,6 +12,7 @@ go install github.com/okaryo/dlog@latest
 
 ```bash
 dlog "task progress update"
+dlog amend "corrected task progress update"
 dlog
 dlog log
 dlog log --date 2026-04-12
@@ -22,6 +23,7 @@ dlog md --date 2026-04-12
 ## Behavior
 
 - `dlog "text"` appends a log entry for today with the current local timestamp.
+- `dlog amend "text"` replaces today's most recent log entry while keeping its original timestamp.
 - `dlog` and `dlog log` show today's logs in reverse chronological order.
 - `dlog log --date YYYY-MM-DD` shows logs for the specified date.
 - `dlog md` prints today's logs in Markdown order from oldest to newest.

@@ -55,6 +55,32 @@ func (s *Service) AddTodayLog(text string) error {
 	return s.store.SaveDay(dayLog)
 }
 
+func (s *Service) AmendTodayLog(text string) error {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return fmt.Errorf("log text cannot be empty")
+	}
+
+	now := s.now()
+	dayLog, err := s.store.LoadDay(now)
+	if err != nil {
+		return err
+	}
+
+	expectedDate := now.Format(dayLayout)
+	if dayLog.Date != expectedDate {
+		return fmt.Errorf("day log date mismatch: expected %s, got %s", expectedDate, dayLog.Date)
+	}
+
+	if len(dayLog.Logs) == 0 {
+		return fmt.Errorf("no logs to amend for today")
+	}
+
+	dayLog.Logs[len(dayLog.Logs)-1].Text = text
+
+	return s.store.SaveDay(dayLog)
+}
+
 func (s *Service) GetTodayLog() (*model.DayLog, error) {
 	return s.getLogByTime(s.now())
 }
