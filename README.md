@@ -1,6 +1,6 @@
 # dlog
 
-`dlog` is a small CLI for recording and viewing daily work logs.
+`dlog` is a small CLI for daily work log.
 
 ## Install
 

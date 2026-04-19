@@ -13,7 +13,7 @@ import (
 func NewRootCmd(svc *service.Service, out io.Writer, errOut io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:           "dlog [text]",
-		Short:         "Record and view daily work logs",
+		Short:         "Daily work log",
 		Args:          cobra.MaximumNArgs(1),
 		SilenceUsage:  true,
 		SilenceErrors: true,
