@@ -2,6 +2,9 @@
 
 `dlog` is a small CLI for daily work log.
 
+> [!WARNING]
+> This project is intended for a very personal use case, and its API may change dynamically.
+
 ## Install
 
 ```bash
