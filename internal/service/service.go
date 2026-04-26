@@ -86,12 +86,28 @@ func (s *Service) GetTodayLog() (*model.DayLog, error) {
 }
 
 func (s *Service) GetLogByDate(date string) (*model.DayLog, error) {
-	parsedDate, err := time.ParseInLocation(dayLayout, date, time.Local)
+	parsedDate, err := s.parseDate(date)
 	if err != nil {
-		return nil, fmt.Errorf("date must be in YYYY-MM-DD format: %q", date)
+		return nil, err
 	}
 
 	return s.getLogByTime(parsedDate)
+}
+
+func (s *Service) parseDate(date string) (time.Time, error) {
+	switch strings.ToLower(strings.TrimSpace(date)) {
+	case "today":
+		return s.now(), nil
+	case "yesterday":
+		return s.now().AddDate(0, 0, -1), nil
+	}
+
+	parsedDate, err := time.ParseInLocation(dayLayout, date, time.Local)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("date must be YYYY-MM-DD, today, or yesterday: %q", date)
+	}
+
+	return parsedDate, nil
 }
 
 func (s *Service) getLogByTime(target time.Time) (*model.DayLog, error) {

@@ -15,8 +15,10 @@ dlog "task progress update"
 dlog amend "corrected task progress update"
 dlog
 dlog log
+dlog log yesterday
 dlog log --date 2026-04-12
 dlog md
+dlog md yesterday
 dlog md --date 2026-04-12
 ```
 
@@ -25,9 +27,9 @@ dlog md --date 2026-04-12
 - `dlog "text"` appends a log entry for today with the current local timestamp.
 - `dlog amend "text"` replaces today's most recent log entry while keeping its original timestamp.
 - `dlog` and `dlog log` show today's logs in reverse chronological order.
-- `dlog log --date YYYY-MM-DD` shows logs for the specified date.
+- `dlog log [YYYY-MM-DD|today|yesterday]` and `dlog log --date [YYYY-MM-DD|today|yesterday]` show logs for the specified date.
 - `dlog md` prints today's logs in Markdown order from oldest to newest.
-- `dlog md --date YYYY-MM-DD` prints logs for the specified date in Markdown order.
+- `dlog md [YYYY-MM-DD|today|yesterday]` and `dlog md --date [YYYY-MM-DD|today|yesterday]` print logs for the specified date in Markdown order.
 - Displayed times use the timezone recorded in each log entry, not the viewer's current local timezone.
 
 ## Examples
@@ -89,6 +91,14 @@ Output a specific date as Markdown:
 
 ```bash
 $ dlog md --date 2026-04-11
+# 2026-04-11
+- 18:45 previous day task
+```
+
+Output yesterday's logs as Markdown:
+
+```bash
+$ dlog md yesterday
 # 2026-04-11
 - 18:45 previous day task
 ```

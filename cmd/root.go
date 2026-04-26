@@ -48,19 +48,27 @@ func newLogCmd(svc *service.Service, out io.Writer) *cobra.Command {
 	var date string
 
 	cmd := &cobra.Command{
-		Use:   "log",
+		Use:   "log [date]",
 		Short: "Show logs for today or a specified date",
-		Args:  cobra.NoArgs,
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var (
 				dayLog *model.DayLog
 				err    error
 			)
 
-			if date == "" {
+			selectedDate := date
+			if selectedDate != "" && len(args) == 1 {
+				return fmt.Errorf("use either --date or a date argument, not both")
+			}
+			if selectedDate == "" && len(args) == 1 {
+				selectedDate = args[0]
+			}
+
+			if selectedDate == "" {
 				dayLog, err = svc.GetTodayLog()
 			} else {
-				dayLog, err = svc.GetLogByDate(date)
+				dayLog, err = svc.GetLogByDate(selectedDate)
 			}
 			if err != nil {
 				return err
@@ -76,7 +84,7 @@ func newLogCmd(svc *service.Service, out io.Writer) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&date, "date", "d", "", "Show logs for the specified date (YYYY-MM-DD)")
+	cmd.Flags().StringVarP(&date, "date", "d", "", "Show logs for the specified date (YYYY-MM-DD, today, or yesterday)")
 
 	return cmd
 }
@@ -85,19 +93,27 @@ func newMarkdownCmd(svc *service.Service, out io.Writer) *cobra.Command {
 	var date string
 
 	cmd := &cobra.Command{
-		Use:   "md",
+		Use:   "md [date]",
 		Short: "Output logs as Markdown for today or a specified date",
-		Args:  cobra.NoArgs,
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var (
 				dayLog *model.DayLog
 				err    error
 			)
 
-			if date == "" {
+			selectedDate := date
+			if selectedDate != "" && len(args) == 1 {
+				return fmt.Errorf("use either --date or a date argument, not both")
+			}
+			if selectedDate == "" && len(args) == 1 {
+				selectedDate = args[0]
+			}
+
+			if selectedDate == "" {
 				dayLog, err = svc.GetTodayLog()
 			} else {
-				dayLog, err = svc.GetLogByDate(date)
+				dayLog, err = svc.GetLogByDate(selectedDate)
 			}
 			if err != nil {
 				return err
@@ -113,7 +129,7 @@ func newMarkdownCmd(svc *service.Service, out io.Writer) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&date, "date", "d", "", "Output logs for the specified date (YYYY-MM-DD)")
+	cmd.Flags().StringVarP(&date, "date", "d", "", "Output logs for the specified date (YYYY-MM-DD, today, or yesterday)")
 
 	return cmd
 }
